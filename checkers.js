@@ -151,8 +151,73 @@ function checkLanding(moves, jumps, piece, cx, cy, lx, ly) {
   * A function to apply the selected move to the game
   * @param {object} move - the move to apply.
   */
-function applyMove(move) {
+function applyMove(x, y, move) {
   // TODO: Apply the move
-  // TODO: Check for victory
-  // TODO: Start the next turn
+  // JS === more like == in other langs
+  if(move.type === "slide"){
+	  state.board[move.y][move.x] = this.board[y][x];
+	  state.board[y][x] = null;
+  }
+  else{
+	  move.captures.forEach(function(square){
+		 state.board[square.y][square.x] = null; 
+	  });
+	  var index = move.landings.length;
+	  state.board[move.landings[index].y][move.landings[index].x] = state.board[y][x];
+	  state.board[y][x] = null;
+  }
 }
+
+// TODO: Check for victory
+function checkForVictory(){
+	var wCount = 0;
+	var bCount = 0;
+	for(y = 0; y < 10; y++){
+		for(x = 0; x < 10; x++){
+			if(state.board[y][x] === 'w' || state.board[y][x] === 'kw'){
+				wCount++;
+			}
+		}
+	}
+	for(y = 0; y < 10; y++){
+		for(x = 0; x < 10; x++){
+			if(state.board[y][x] === 'w' || state.board[y][x] === 'kw'){
+				bCount++;
+			}
+		}
+	}
+	if(wCount === 0){
+		state.over = true;
+		return 'black wins';
+	}
+	if(bCount === 0){
+		state.over = true;
+		return 'white wins';
+	}
+	return null;
+}
+
+// TODO: Start the next turn
+function nextTurn(){
+	if(state.turn === 'b') state.turn = 'w';
+	else state.turn = 'b';
+}
+
+function printBoard(){
+	for(y = 0; y < 10; y++){
+		for(x = 0; x < 10; x++){
+			if(state.board[y][x] === null){
+				console.log("* ");
+			}
+			else{
+				console.log(state.board[y][x]);
+				console.log(" ");
+			}
+		}
+		console.log("\n");
+	}
+}
+
+function main(){
+	printBoard();
+}();
