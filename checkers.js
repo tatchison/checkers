@@ -207,11 +207,19 @@ function handleCheckerClick(event){
 	var x = parseInt(parentId.charAt(7));
 	var y = parseInt(parentId.charAt(9));
 	var moves = getLegalMoves(state.board[y][x], x, y);
-	moves.forEach(function(move, index),{
-		var id = 'checker-' + move.x + '-' + move.y;
-		var square = document.getElementById(id);
-		square.classList.add('highlight');
-	})
+	moves.forEach(function(move),{
+		if (move.type === 'slide'){
+			var id = 'checker-' + move.x + '-' + move.y;
+			var square = document.getElementById(id);
+			square.classList.add('highlight');
+		} else{
+			moves.landings.forEach(function(landing){
+			var id = 'checker-' + landing.x + '-' + landing.y;
+			var square = document.getElementById(id);
+			square.classList.add('highlight');
+			});
+		}
+	});
 	console.log(x,y);
 }
 
