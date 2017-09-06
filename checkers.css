@@ -18,6 +18,10 @@
 	background-color: darkgrey;
 }
 
+.highlight{
+	background-color: yellow;
+}
+
 .checker{
 	height: 90px;
 	width: 90px;

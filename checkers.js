@@ -207,6 +207,11 @@ function handleCheckerClick(event){
 	var x = parseInt(parentId.charAt(7));
 	var y = parseInt(parentId.charAt(9));
 	var moves = getLegalMoves(state.board[y][x], x, y);
+	moves.forEach(function(move, index),{
+		var id = 'checker-' + move.x + '-' + move.y;
+		var square = document.getElementById(id);
+		square.classList.add('highlight');
+	})
 	console.log(x,y);
 }
 
@@ -228,7 +233,7 @@ function handleCheckerClick(event){
 					var checker = document.createElement('div');
 					checker.classList.add('checker');
 					checker.classList.add('checker-' + state.board[y][x]);
-					checker.onclick = "handleCheckerClick"";
+					checker.onclick = handleCheckerClick;
 					square.appendChild(checker);
 				}
 			}
