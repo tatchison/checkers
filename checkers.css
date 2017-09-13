@@ -1,39 +1,7 @@
 /* checkers.css */
-#game-board {
-	border: 1px solid black;
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	width: 1020px;
-	height: 1020px;
-}
 
-.square{
-	border: 1px solid black;
-	width: 100px;
-	height: 100px;
-}
-
-.black{
-	background-color: darkgrey;
-}
-
-.highlight{
-	background-color: yellow;
-}
-
-.checker{
-	height: 90px;
-	width: 90px;
-	margin: 5px;
-	border-radius: 50%;
-	box-shadow: 2px 2px 4px gray;
-}
-
-.checker-w{
-	background-color: ivory;
-}
-
-.checker-b{
-	Background-color: black;
+.canvas{
+	border: solid 1px black;
+	box-shadow: 5px 5px 5px black;
+	position: relative
 }
