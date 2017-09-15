@@ -206,33 +206,134 @@ function nextTurn() {
   else state.turn = 'b';
 }
 
-function renderBoard(){
-	ctx.fillStyle = '#222';
-	for(var y = 0; y < 10; y++){
-		for(var x = 0; x < 10; x++){
-			if((x + y) % 2 == 1){
-				ctx.fillStyle = '#888';
-				ctx.fillRect(x*100, y*100, 100, 100);
-				if(state.board[y][x]){
-					ctx.beginPath();
-					if(state.board[y][x].charAt(0) === 'w'){
-						ctx.fillStyle = '#fff';
-					}
-					else{
-						ctx.fillStyle = '#000';
-					}
-					ctx.arc(x*100+50, y*100+50, 40, 0, Math.PI*2);
-					ctx.fill();
-				}
-			}
+/** @function renderChecker
+  * Renders a checker at the specified position
+  */
+function renderChecker(piece, x, y) {
+  ctx.beginPath();
+  if(state.board[y][x].charAt(0) === 'w') {
+    ctx.fillStyle = '#fff';
+  } else {
+    ctx.fillStyle = '#000';
+  }
+  ctx.arc(x*100+50, y*100+50, 40, 0, Math.PI * 2);
+  ctx.fill();
+  // TODO: Add a crown for kings
+}
+
+/** @function renderSquare
+  * Renders a single square on the game board
+  * as well as any checkers on it.
+  */
+function renderSquare(x,y) {
+  if((x + y) % 2 == 1) {
+    ctx.fillStyle = '#888';
+    ctx.fillRect(x*100, y*100, 100, 100);
+    if(state.board[y][x]) {
+      renderChecker(state.board[y][x], x, y);
+    }
+  }
+}
+
+/** @function renderBoard()
+  * Renders the entire game board.
+  */
+function renderBoard() {
+  if(!ctx) return;
+  for(var y = 0; y < 10; y++) {
+    for(var x = 0; x < 10; x++) {
+      renderSquare(x, y);
+    }
+  }
+}
+
+function boardPosition(x, y){
+	var boardX = Math.floor(x / 50);
+	var boardY = Math.floor(y / 50);
+	return {x:boardX, y:boardY}
+}
+
+function handleMouseDown(event){
+	var position = boardPosition(event.clientX, event.clientY);
+	var x = position.x;
+	var y = position.y;
+	if(x < 0 || y < 0 || x > 9 || y > 9) return;
+	if(state.board[y][x] && state.board[y][x].charAt(0) === state.turn){
+		//pick up the piece
+		state.movingPiece = {
+			piece: state.board[y][x];
+			startPosition: {x:x, y:y},
+			currentPosition: boardPosition(event.clientX, event.clientY)
 		}
+		state.action = 'dragging';
+		state.board[y][x] = null;
+		renderBoard();
+	}
+}
+
+function handleMouseUp(event){
+	if(state.action !== 'dragging') return;
+	var position = boardPosition(event.clientX, event.clientY);
+	var x = position.x;
+	var y = position.y;
+	if(x < 0 || y < 0 || x > 9 || y > 9) return;{
+		//Release off board => rubberband back to start position
+		var sx = state.movingPiece.startPosition.x;
+		var sy = state.movingPiece.startPosition.y;
+		state.board.[sy][sx] = state.movingPiece.piece;
+		state.movingPiece = null;
+		renderBoard();
+		return;
+	}
+	//If drop is part of a legal move...
+	if(true){
+		var lx = state.movingPiece.currentPosition.x;
+		var ly = state.movingPiece.currentPosition.y;
+		state.board[ly][lx] = state.movingPiece;
+		state.movingPiece = null;
+		state.action = 'idle';
+		renderBoard();
+		return;
+	}
+}
+
+function renderDragging(){
+	//Render Ghost checker
+	renderBoard();
+	ctx.fillStyle = '#555';
+	ctx.beginPath();
+	ctx.arc(
+		state.movingPiece.startPosition.x*100+50,
+		state.movingPiece.startPosition.y*100+50,
+		40, 0, Math.PI*2
+	);
+	ctx.fill();
+	//Render Moving checkers
+	ctx.StrokStyle = 'yellow';
+}
+
+function handleMouseMove(event){
+	switch(state.action){
+		case 'idle':
+			hoverOverChecker(event);
+			break;
+		case 'dragging':
+			//Render 'Ghost'
+			//Render Floating Checker
+			//redraw board
+			state.movingPiece.currentPosition = boardPosition (event.clientX, event.clientY);
+			renderDragging();
+			break;
 	}
 }
 
 function hoverOverChecker(event){
-	var x = Math.floor(event.clientX / 100);
-	var y = Math.floor(event.clientY / 100);
+	if(!ctx) return;
+	var x = Math.floor(event.clientX / 50);
+	var y = Math.floor(event.clientY / 50);
+	if(x < 0 || y < 0 || x > 9 || y > 9) return;
 	if(state.board[y][x] && state.board[y][x].charAt(0) === state.turn){
+		ctx.strokeWidth = 5;
 		ctx.strokeStyle = 'yellow';
 		ctx.beginPath();
 		ctx.arc(x*100+50, y*100+50, 40, 0, Math.PI*2);
@@ -244,7 +345,9 @@ function setup(){
 	var canvas = dpcument.createElelment('canvas');
 	canvas.width = 1000;
 	canvas.height = 1000;
-	canvas.onmousemove = hoverOverChecker;
+	canvas.onmousedown = handleMouseDown;
+	cnavas.onmouseup = handleMouseUp;
+	canvas.onmousemove = handleMouseMove;
 	document.body.appendChild(canvas);
 	ctx = canvas.getContext('2d');
 	renderBoard();
